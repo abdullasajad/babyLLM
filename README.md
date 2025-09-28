@@ -92,8 +92,7 @@ POST /api/summary/webpage      # Generate summary
 
 ## License
 
-<<<<<<< HEAD
-MIT License - see [LICENSE](./LICENSE) file for details.
+
 =======
 ## 📚 **Documentation**
 
@@ -149,4 +148,4 @@ Your babyLLM AI search assistant is **complete and running**!
 **🚀 Start exploring: http://localhost:3000**
 
 *Built with ❤️ by sajadtlpr*
->>>>>>> 4c84f908534496e61cb2944c86749082cd2c6309
+
