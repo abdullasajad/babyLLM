@@ -1,0 +1,71 @@
+{
+  "version": 2,
+  "name": "babyllm-frontend",
+  "builds": [
+    {
+      "src": "frontend/simple-web/**",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/",
+      "dest": "/frontend/simple-web/silicon-valley-index.html"
+    },
+    {
+      "src": "/classic",
+      "dest": "/frontend/simple-web/index.html"
+    },
+    {
+      "src": "/professional",
+      "dest": "/frontend/simple-web/professional-index.html"
+    },
+    {
+      "src": "/chatgpt",
+      "dest": "/frontend/simple-web/chatgpt-index.html"
+    },
+    {
+      "src": "/(.*\\.(css|js|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot))",
+      "dest": "/frontend/simple-web/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/frontend/simple-web/silicon-valley-index.html"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-XSS-Protection",
+          "value": "1; mode=block"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        }
+      ]
+    },
+    {
+      "source": "/(.*\\.(css|js|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot))",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    }
+  ],
+  "env": {
+    "EXPO_PUBLIC_API_URL": "@api-url"
+  }
+}

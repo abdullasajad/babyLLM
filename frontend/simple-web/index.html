@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>babyLLM - AI-Powered Search</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <h1>🤖 babyLLM</h1>
+            <p>Enhanced search powered by AI</p>
+        </div>
+        
+        <div class="status">
+            ✅ Backend Server: <span id="backend-status">Checking...</span>
+        </div>
+        
+        <form class="search-form" id="searchForm">
+            <input 
+                type="text" 
+                class="search-input" 
+                id="searchInput" 
+                placeholder="Ask me anything..."
+                required
+            >
+            <button type="submit" class="search-btn" id="searchBtn">
+                🔍 Search
+            </button>
+        </form>
+        
+        <div class="results" id="results"></div>
+        
+        <div class="auth-section">
+            <button class="auth-btn" onclick="showAuth('login')">Log In</button>
+            <button class="auth-btn" onclick="showAuth('signup')">Sign Up</button>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:5000';
+        
+        // Check backend status
+        async function checkBackendStatus() {
+            try {
+                const response = await fetch(`${API_URL}/health`);
+                const data = await response.json();
+                document.getElementById('backend-status').textContent = 'Connected ✅';
+                document.getElementById('backend-status').style.color = 'green';
+            } catch (error) {
+                document.getElementById('backend-status').textContent = 'Disconnected ❌';
+                document.getElementById('backend-status').style.color = 'red';
+            }
+        }
+        
+        // Search function
+        async function performSearch(query) {
+            const resultsDiv = document.getElementById('results');
+            const searchBtn = document.getElementById('searchBtn');
+            
+            // Show loading
+            resultsDiv.innerHTML = '<div class="loading">🔍 Searching for "' + query + '"...</div>';
+            searchBtn.disabled = true;
+            searchBtn.textContent = 'Searching...';
+            
+            try {
+                const response = await fetch(`${API_URL}/api/search?q=${encodeURIComponent(query)}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    displayResults(data);
+                } else {
+                    throw new Error(data.message || 'Search failed');
+                }
+            } catch (error) {
+                resultsDiv.innerHTML = `<div class="error">❌ Error: ${error.message}</div>`;
+            } finally {
+                searchBtn.disabled = false;
+                searchBtn.textContent = '🔍 Search';
+            }
+        }
+        
+        // Display search results
+        function displayResults(data) {
+            const resultsDiv = document.getElementById('results');
+            let html = `<h3>🔍 Search Results for "${data.query}"</h3>`;
+            
+            data.results.forEach((result, index) => {
+                html += `
+                    <div class="result-item" style="animation-delay: ${index * 0.1}s">
+                        <div class="result-title" onclick="window.open('${result.url}', '_blank')">${result.title}</div>
+                        <div class="result-url">${result.displayUrl || new URL(result.url).hostname}</div>
+                        <div class="result-snippet">${result.snippet}</div>
+                        <div style="margin-top: 10px;">
+                            <button class="related-query-btn" onclick="generateSummary('${result.url}', '${result.id}')">
+                                📄 Generate Summary
+                            </button>
+                            <button class="related-query-btn" onclick="window.open('${result.url}', '_blank')">
+                                🔗 Visit Page
+                            </button>
+                        </div>
+                        <div id="summary-${result.id}" class="summary-container" style="display: none;"></div>
+                    </div>
+                `;
+            });
+            
+            if (data.relatedQueries && data.relatedQueries.length > 0) {
+                html += `
+                    <div class="related-queries">
+                        <h4>💡 Related Queries:</h4>
+                        ${data.relatedQueries.map(query => 
+                            `<button class="related-query-btn" onclick="searchRelated('${query}')">${query}</button>`
+                        ).join(' ')}
+                    </div>
+                `;
+            }
+            
+            resultsDiv.innerHTML = html;
+        }
+        
+        // Auth functions (mock)
+        function showAuth(type) {
+            if (type === 'login') {
+                const email = prompt('Enter email:');
+                const password = prompt('Enter password:');
+                if (email && password) {
+                    mockAuth('login', { email, password });
+                }
+            } else {
+                const email = prompt('Enter email:');
+                const password = prompt('Enter password:');
+                const name = prompt('Enter name (optional):');
+                if (email && password) {
+                    mockAuth('signup', { email, password, name });
+                }
+            }
+        }
+        
+        async function mockAuth(type, data) {
+            try {
+                const response = await fetch(`${API_URL}/api/auth/${type}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert(`${type === 'login' ? 'Login' : 'Signup'} successful! Welcome ${result.user.name || result.user.email}`);
+                } else {
+                    alert(`${type === 'login' ? 'Login' : 'Signup'} failed: ${result.message}`);
+                }
+            } catch (error) {
+                alert(`Error: ${error.message}`);
+            }
+        }
+        
+        // Event listeners
+        document.getElementById('searchForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const query = document.getElementById('searchInput').value.trim();
+            if (query) {
+                performSearch(query);
+            }
+        });
+        
+        // Check backend status on load
+        checkBackendStatus();
+        
+        // Auto-refresh backend status every 30 seconds
+        setInterval(checkBackendStatus, 30000);
+        
+        // Enhanced functions
+        function searchRelated(query) {
+            document.getElementById('searchInput').value = query;
+            performSearch(query);
+        }
+        
+        async function generateSummary(url, resultId) {
+            const summaryContainer = document.getElementById(`summary-${resultId}`);
+            const button = event.target;
+            
+            // Show loading
+            button.disabled = true;
+            button.textContent = '⏳ Generating...';
+            summaryContainer.style.display = 'block';
+            summaryContainer.innerHTML = '<div class="loading">🤖 AI is analyzing the webpage...</div>';
+            
+            try {
+                const response = await fetch(`${API_URL}/api/summary/webpage`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    summaryContainer.innerHTML = `
+                        <div style="background: #f0f8ff; padding: 15px; border-radius: 8px; margin-top: 10px; border-left: 3px solid #4a6fa5;">
+                            <h5 style="color: #4a6fa5; margin-bottom: 8px;">🤖 AI Summary:</h5>
+                            <p style="color: #333; line-height: 1.6;">${data.data.summary}</p>
+                            <small style="color: #666; font-style: italic;">Generated at ${new Date(data.data.processedAt).toLocaleTimeString()}</small>
+                        </div>
+                    `;
+                } else {
+                    throw new Error(data.message || 'Failed to generate summary');
+                }
+            } catch (error) {
+                summaryContainer.innerHTML = `<div class="error">❌ Failed to generate summary: ${error.message}</div>`;
+            } finally {
+                button.disabled = false;
+                button.textContent = '📄 Generate Summary';
+            }
+        }
+        
+        // Add keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            // Ctrl/Cmd + K to focus search
+            if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                e.preventDefault();
+                document.getElementById('searchInput').focus();
+            }
+            
+            // Escape to clear search
+            if (e.key === 'Escape') {
+                document.getElementById('searchInput').value = '';
+                document.getElementById('results').innerHTML = '';
+            }
+        });
+        
+        // Add search suggestions (mock)
+        const searchSuggestions = [
+            'artificial intelligence',
+            'machine learning',
+            'web development',
+            'data science',
+            'blockchain technology',
+            'quantum computing',
+            'cybersecurity',
+            'cloud computing'
+        ];
+        
+        // Simple autocomplete
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            const value = e.target.value.toLowerCase();
+            if (value.length > 2) {
+                const suggestions = searchSuggestions.filter(s => s.includes(value));
+                // Could implement dropdown here
+            }
+        });
+        
+        // Add some sample searches for demo
+        function addSampleSearches() {
+            const container = document.querySelector('.auth-section');
+            const sampleDiv = document.createElement('div');
+            sampleDiv.innerHTML = `
+                <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee;">
+                    <p style="color: #666; margin-bottom: 15px; font-size: 14px;">💡 Try these sample searches:</p>
+                    <button class="related-query-btn" onclick="searchRelated('artificial intelligence')">🤖 Artificial Intelligence</button>
+                    <button class="related-query-btn" onclick="searchRelated('web development')">💻 Web Development</button>
+                    <button class="related-query-btn" onclick="searchRelated('data science')">📊 Data Science</button>
+                </div>
+            `;
+            container.appendChild(sampleDiv);
+        }
+        
+        // Add sample searches after page load
+        setTimeout(addSampleSearches, 1000);
+    </script>
+</body>
+</html>

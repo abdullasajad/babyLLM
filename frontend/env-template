@@ -1,0 +1,19 @@
+# babyLLM Frontend Environment Variables
+# Copy this file to .env and fill in your actual values
+
+# Backend API URL
+# For production deployment, use your Railway backend URL
+EXPO_PUBLIC_API_URL=https://your-backend-domain.railway.app/api
+
+# For local development, use:
+# EXPO_PUBLIC_API_URL=http://localhost:5000/api
+
+# Optional: Analytics
+# EXPO_PUBLIC_GOOGLE_ANALYTICS_ID=your_ga_id
+
+# Optional: Error Tracking
+# EXPO_PUBLIC_SENTRY_DSN=your_sentry_dsn
+
+# Optional: Feature Flags
+# EXPO_PUBLIC_ENABLE_ANALYTICS=true
+# EXPO_PUBLIC_ENABLE_PWA=true

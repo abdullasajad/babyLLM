@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>babyLLM - AI Search Assistant</title>
+    <link rel="stylesheet" href="professional-styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <div class="logo-icon">AI</div>
+                    <div class="logo-text">babyLLM</div>
+                </div>
+                <button class="new-chat-btn" onclick="startNewChat()">
+                    <span>+</span>
+                    New Search
+                </button>
+            </div>
+            
+            <div class="chat-history" id="chatHistory">
+                <div class="history-item active" onclick="loadChat('current')">
+                    <div>Current Search Session</div>
+                    <small>Just now</small>
+                </div>
+            </div>
+            
+            <div class="sidebar-footer">
+                <div class="user-menu" onclick="showUserMenu()">
+                    <div class="user-avatar">U</div>
+                    <div>
+                        <div style="font-size: 14px; color: #ffffff;">Demo User</div>
+                        <div style="font-size: 12px; color: #8e8ea0;">Free Plan</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="chat-header">
+                <div class="chat-title">AI Search Assistant</div>
+                <div class="status-indicator">
+                    <div class="status-dot" id="statusDot"></div>
+                    <span id="statusText">Connecting...</span>
+                </div>
+            </div>
+            
+            <div class="chat-messages" id="chatMessages">
+                <!-- Welcome Screen -->
+                <div class="welcome-screen" id="welcomeScreen">
+                    <h1 class="welcome-title">Welcome to babyLLM</h1>
+                    <p class="welcome-subtitle">
+                        Your AI-powered search assistant. Ask me anything and I'll provide comprehensive answers with sources.
+                    </p>
+                    
+                    <div class="example-prompts">
+                        <div class="example-prompt" onclick="sendExampleQuery('What is artificial intelligence and how does it work?')">
+                            <div class="example-prompt-title">Explain AI</div>
+                            <div class="example-prompt-desc">Learn about artificial intelligence and its applications</div>
+                        </div>
+                        
+                        <div class="example-prompt" onclick="sendExampleQuery('Latest developments in quantum computing')">
+                            <div class="example-prompt-title">Tech Research</div>
+                            <div class="example-prompt-desc">Get the latest information on emerging technologies</div>
+                        </div>
+                        
+                        <div class="example-prompt" onclick="sendExampleQuery('Best practices for web development in 2024')">
+                            <div class="example-prompt-title">Web Development</div>
+                            <div class="example-prompt-desc">Discover modern web development techniques</div>
+                        </div>
+                        
+                        <div class="example-prompt" onclick="sendExampleQuery('How to start learning data science?')">
+                            <div class="example-prompt-title">Data Science</div>
+                            <div class="example-prompt-desc">Get guidance on beginning your data science journey</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="chat-input-container">
+                <div class="input-wrapper">
+                    <textarea 
+                        class="chat-input" 
+                        id="chatInput" 
+                        placeholder="Ask me anything..."
+                        rows="1"
+                        onkeydown="handleInputKeydown(event)"
+                        oninput="adjustTextareaHeight()"
+                    ></textarea>
+                    <button class="send-button" id="sendButton" onclick="sendMessage()">
+                        <span>→</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:5000';
+        let conversationHistory = [];
+        let isTyping = false;
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', () => {
+            checkBackendStatus();
+            setInterval(checkBackendStatus, 30000);
+            adjustTextareaHeight();
+        });
+
+        // Backend status check
+        async function checkBackendStatus() {
+            try {
+                const response = await fetch(`${API_URL}/health`);
+                const data = await response.json();
+                updateStatus(true, 'Connected');
+            } catch (error) {
+                updateStatus(false, 'Disconnected');
+            }
+        }
+
+        function updateStatus(connected, text) {
+            const statusDot = document.getElementById('statusDot');
+            const statusText = document.getElementById('statusText');
+            
+            statusDot.className = connected ? 'status-dot' : 'status-dot disconnected';
+            statusText.textContent = text;
+        }
+
+        // Chat functionality
+        function startNewChat() {
+            conversationHistory = [];
+            document.getElementById('chatMessages').innerHTML = `
+                <div class="welcome-screen" id="welcomeScreen">
+                    <h1 class="welcome-title">Welcome to babyLLM</h1>
+                    <p class="welcome-subtitle">
+                        Your AI-powered search assistant. Ask me anything and I'll provide comprehensive answers with sources.
+                    </p>
+                    
+                    <div class="example-prompts">
+                        <div class="example-prompt" onclick="sendExampleQuery('What is artificial intelligence and how does it work?')">
+                            <div class="example-prompt-title">Explain AI</div>
+                            <div class="example-prompt-desc">Learn about artificial intelligence and its applications</div>
+                        </div>
+                        
+                        <div class="example-prompt" onclick="sendExampleQuery('Latest developments in quantum computing')">
+                            <div class="example-prompt-title">Tech Research</div>
+                            <div class="example-prompt-desc">Get the latest information on emerging technologies</div>
+                        </div>
+                        
+                        <div class="example-prompt" onclick="sendExampleQuery('Best practices for web development in 2024')">
+                            <div class="example-prompt-title">Web Development</div>
+                            <div class="example-prompt-desc">Discover modern web development techniques</div>
+                        </div>
+                        
+                        <div class="example-prompt" onclick="sendExampleQuery('How to start learning data science?')">
+                            <div class="example-prompt-title">Data Science</div>
+                            <div class="example-prompt-desc">Get guidance on beginning your data science journey</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.getElementById('chatInput').value = '';
+        }
+
+        function sendExampleQuery(query) {
+            document.getElementById('chatInput').value = query;
+            sendMessage();
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            
+            if (!message || isTyping) return;
+            
+            // Hide welcome screen
+            const welcomeScreen = document.getElementById('welcomeScreen');
+            if (welcomeScreen) {
+                welcomeScreen.style.display = 'none';
+            }
+            
+            // Add user message
+            addMessage('user', message);
+            input.value = '';
+            adjustTextareaHeight();
+            
+            // Show typing indicator
+            showTypingIndicator();
+            
+            try {
+                // Search for information
+                const searchResponse = await fetch(`${API_URL}/api/search?q=${encodeURIComponent(message)}`);
+                const searchData = await searchResponse.json();
+                
+                if (searchData.success) {
+                    // Generate AI response with search results
+                    const aiResponse = generateAIResponse(message, searchData);
+                    
+                    // Remove typing indicator and add AI response
+                    removeTypingIndicator();
+                    addMessage('assistant', aiResponse, searchData.results);
+                    
+                    // Add to conversation history
+                    conversationHistory.push({
+                        user: message,
+                        assistant: aiResponse,
+                        timestamp: new Date(),
+                        results: searchData.results
+                    });
+                    
+                    // Update chat history in sidebar
+                    updateChatHistory();
+                } else {
+                    throw new Error(searchData.message || 'Search failed');
+                }
+            } catch (error) {
+                removeTypingIndicator();
+                addMessage('assistant', `I apologize, but I encountered an error while searching: ${error.message}. Please try again.`);
+            }
+        }
+
+        function generateAIResponse(query, searchData) {
+            const responses = [
+                `Based on my search, here's what I found about "${query}":`,
+                `I've gathered comprehensive information about "${query}":`,
+                `Here's a detailed overview of "${query}" based on current sources:`,
+                `Let me break down the information I found about "${query}":`
+            ];
+            
+            const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+            
+            const summary = `${randomResponse}\n\nI found ${searchData.results.length} relevant sources that provide detailed information on this topic. The search results include comprehensive coverage from various authoritative sources. You can explore each result below for more specific details.`;
+            
+            return summary;
+        }
+
+        function addMessage(type, content, results = null) {
+            const messagesContainer = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}`;
+            
+            const avatar = type === 'user' ? 'U' : 'AI';
+            const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            
+            let resultsHTML = '';
+            if (results && results.length > 0) {
+                resultsHTML = `
+                    <div class="search-results">
+                        ${results.map((result, index) => `
+                            <div class="search-result-item">
+                                <a href="${result.url}" target="_blank" class="result-title">${result.title}</a>
+                                <div class="result-url">${new URL(result.url).hostname}</div>
+                                <div class="result-snippet">${result.snippet}</div>
+                                <div class="result-actions">
+                                    <button class="result-action-btn" onclick="generateSummary('${result.url}', ${index})">
+                                        Summarize
+                                    </button>
+                                    <button class="result-action-btn" onclick="window.open('${result.url}', '_blank')">
+                                        Visit
+                                    </button>
+                                    <button class="result-action-btn" onclick="askFollowUp('${result.title}')">
+                                        Ask more
+                                    </button>
+                                </div>
+                                <div id="summary-${index}" style="display: none;"></div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+            
+            messageDiv.innerHTML = `
+                <div class="message-avatar">${avatar}</div>
+                <div class="message-content">
+                    <div class="message-bubble">
+                        ${content.replace(/\n/g, '<br>')}
+                        ${resultsHTML}
+                    </div>
+                    <div class="message-time">${time}</div>
+                </div>
+            `;
+            
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function showTypingIndicator() {
+            isTyping = true;
+            const messagesContainer = document.getElementById('chatMessages');
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'message assistant';
+            typingDiv.id = 'typingIndicator';
+            
+            typingDiv.innerHTML = `
+                <div class="message-avatar">AI</div>
+                <div class="message-content">
+                    <div class="message-bubble">
+                        <div class="typing-indicator">
+                            <div class="typing-dot"></div>
+                            <div class="typing-dot"></div>
+                            <div class="typing-dot"></div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            messagesContainer.appendChild(typingDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function removeTypingIndicator() {
+            isTyping = false;
+            const typingIndicator = document.getElementById('typingIndicator');
+            if (typingIndicator) {
+                typingIndicator.remove();
+            }
+        }
+
+        async function generateSummary(url, index) {
+            const summaryContainer = document.getElementById(`summary-${index}`);
+            summaryContainer.style.display = 'block';
+            summaryContainer.innerHTML = '<div style="padding: 12px; font-style: italic; color: #666;">AI is generating summary...</div>';
+            
+            try {
+                const response = await fetch(`${API_URL}/api/summary/webpage`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    summaryContainer.innerHTML = `
+                        <div style="background: #f0f8ff; padding: 16px; border-radius: 8px; margin-top: 12px; border-left: 3px solid #10a37f;">
+                            <div style="font-weight: 600; color: #10a37f; margin-bottom: 8px;">AI Summary</div>
+                            <div style="color: #374151; line-height: 1.5;">${data.data.summary}</div>
+                            <div style="font-size: 12px; color: #6b7280; margin-top: 8px; font-style: italic;">
+                                Generated at ${new Date(data.data.processedAt).toLocaleTimeString()}
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    throw new Error(data.message || 'Failed to generate summary');
+                }
+            } catch (error) {
+                summaryContainer.innerHTML = `
+                    <div style="background: #fee; padding: 12px; border-radius: 8px; margin-top: 12px; color: #dc2626;">
+                        Failed to generate summary: ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        function askFollowUp(title) {
+            const followUpQuery = `Tell me more about: ${title}`;
+            document.getElementById('chatInput').value = followUpQuery;
+            document.getElementById('chatInput').focus();
+        }
+
+        function updateChatHistory() {
+            const historyContainer = document.getElementById('chatHistory');
+            const currentTime = new Date();
+            
+            // Add new history item
+            if (conversationHistory.length > 0) {
+                const lastConversation = conversationHistory[conversationHistory.length - 1];
+                const historyItem = document.createElement('div');
+                historyItem.className = 'history-item';
+                historyItem.innerHTML = `
+                    <div>${lastConversation.user.substring(0, 30)}${lastConversation.user.length > 30 ? '...' : ''}</div>
+                    <small>${getTimeAgo(lastConversation.timestamp)}</small>
+                `;
+                historyContainer.appendChild(historyItem);
+            }
+        }
+
+        function getTimeAgo(timestamp) {
+            const now = new Date();
+            const diff = now - timestamp;
+            const minutes = Math.floor(diff / 60000);
+            
+            if (minutes < 1) return 'Just now';
+            if (minutes < 60) return `${minutes}m ago`;
+            const hours = Math.floor(minutes / 60);
+            if (hours < 24) return `${hours}h ago`;
+            return timestamp.toLocaleDateString();
+        }
+
+        // Input handling
+        function handleInputKeydown(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                sendMessage();
+            }
+        }
+
+        function adjustTextareaHeight() {
+            const textarea = document.getElementById('chatInput');
+            textarea.style.height = 'auto';
+            textarea.style.height = Math.min(textarea.scrollHeight, 200) + 'px';
+        }
+
+        // User menu
+        function showUserMenu() {
+            alert('User menu - Login/Signup functionality available');
+        }
+
+        // Mobile sidebar toggle
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('open');
+        }
+
+        // Add mobile menu button for small screens
+        if (window.innerWidth <= 768) {
+            const header = document.querySelector('.chat-header');
+            const menuButton = document.createElement('button');
+            menuButton.innerHTML = '☰';
+            menuButton.style.cssText = 'background: none; border: none; font-size: 18px; cursor: pointer; color: #374151;';
+            menuButton.onclick = toggleSidebar;
+            header.insertBefore(menuButton, header.firstChild);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,20 @@
+{
+  "version": 2,
+  "name": "babyllm-frontend",
+  "builds": [
+    {
+      "src": "frontend/simple-web/**",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/static/(.*)",
+      "dest": "/static/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
+  ]
+}
