@@ -198,4 +198,4 @@ Your babyLLM AI search assistant is **complete and running**!
 
 **🚀 Start exploring: http://localhost:3000**
 
-*Built with ❤️ by Windsurf AI Assistant*
+*Built with ❤️ by sajadtlpr*
