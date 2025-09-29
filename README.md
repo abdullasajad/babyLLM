@@ -1,151 +1,144 @@
-# babyLLM - AI Search Assistant
+# babyLLM Android
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/abdullasajad/babyLLM)
-[![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/new/template?template=https://github.com/abdullasajad/babyLLM)
-
-A simple AI-powered search assistant that combines web search with GPT summaries.
+A native Android application for AI-powered search with intelligent summaries.
 
 ## Features
 
-- **Web Search**: Real-time search with Bing API
-- **AI Summaries**: GPT-powered content summarization  
-- **Responsive UI**: Works on desktop and mobile
-- **Free Hosting**: Deploy for $0/month
+- **🔍 AI-Powered Search** - Search the web with intelligent results
+- **📝 Smart Summaries** - Generate AI summaries for search results  
+- **🔐 User Authentication** - Secure login and signup system
+- **🎨 Material Design 3** - Modern, beautiful Android UI
+- **🌙 Dark/Light Themes** - Automatic theme switching
+- **📱 Responsive Design** - Works on all Android devices
 
 ## Tech Stack
 
-- **Frontend**: Vanilla JavaScript, HTML, CSS
-- **Backend**: Node.js, Express
-- **Database**: MongoDB Atlas
-- **APIs**: Bing Search, OpenAI GPT
+- **Language**: Kotlin
+- **UI**: Jetpack Compose + Material Design 3
+- **Architecture**: MVVM + Repository Pattern
+- **Networking**: Retrofit + OkHttp
+- **Storage**: DataStore Preferences
+- **Navigation**: Navigation Compose
 
 ## Quick Start
 
-### Local Development
+### Prerequisites
+- Android Studio Arctic Fox+
+- JDK 8+
+- Android SDK API 24+
+
+### Setup
 ```bash
-# Clone and setup
+# 1. Clone the repository
 git clone https://github.com/abdullasajad/babyLLM.git
 cd babyLLM
 
-# Start backend
-cd backend
-npm install
-npm start
+# 2. Open Android Studio
+# File → Open → Select 'android' folder
 
-# Start frontend (new terminal)
-cd frontend
-npm install
-npm start
+# 3. Wait for Gradle sync → Click Run
 ```
 
-Visit `http://localhost:3000`
-
-### Deploy to Production
-1. Click the deploy buttons above
-2. Set environment variables (see below)
-3. Your app will be live in minutes
-
-## Environment Variables
-
-### Backend (.env)
-```env
-NODE_ENV=production
-PORT=5000
-MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/babyllm
-JWT_SECRET=your-super-secret-jwt-key
-
-# Optional API Keys (app works with demo data without these)
-BING_SEARCH_API_KEY=your_bing_api_key
-OPENAI_API_KEY=sk-your_openai_api_key
-```
-
-### Frontend (.env)
-```env
-EXPO_PUBLIC_API_URL=https://your-backend-domain.railway.app/api
-```
-
-## Getting API Keys (Optional)
-
-The app works with demo data, but for real functionality:
-
-1. **Bing Search API**: Go to [Azure Portal](https://portal.azure.com) → Create "Bing Search v7" (1,000 free searches/month)
-2. **OpenAI API**: Go to [OpenAI Platform](https://platform.openai.com) → Create API key ($5 free credit)
-
-## Deployment Cost
-
-**Free Tier**: $0/month using Vercel + Railway + MongoDB Atlas free tiers
-
-## API Endpoints
-
+### Build APK
 ```bash
-GET  /health                    # Health check
-GET  /api/search?q=query       # Search web
-POST /api/summary/webpage      # Generate summary
+cd android
+./gradlew assembleDebug
+# Output: android/app/build/outputs/apk/debug/app-debug.apk
 ```
+
+## Project Structure
+
+```
+android/
+├── app/
+│   ├── src/main/java/com/babyllm/android/
+│   │   ├── MainActivity.kt           # App entry point
+│   │   ├── data/                     # API & repositories
+│   │   │   ├── api/                  # Retrofit services
+│   │   │   ├── model/                # Data classes
+│   │   │   └── repository/           # Data repositories
+│   │   └── ui/                       # Jetpack Compose UI
+│   │       ├── auth/                 # Login/Signup screens
+│   │       ├── home/                 # Home screen
+│   │       ├── search/               # Search functionality
+│   │       ├── settings/             # Settings screen
+│   │       └── theme/                # Material Design 3
+│   └── src/main/res/                 # Android resources
+├── build.gradle                      # Project configuration
+└── gradlew                          # Gradle wrapper
+```
+
+## Configuration
+
+### API Endpoints
+Update API URLs in `android/app/build.gradle`:
+```gradle
+buildTypes {
+    debug {
+        buildConfigField "String", "API_BASE_URL", "\"https://your-api.com/api\""
+    }
+    release {
+        buildConfigField "String", "API_BASE_URL", "\"https://your-api.com/api\""
+    }
+}
+```
+
+### Required Backend Endpoints
+- `POST /api/auth/login` - User authentication
+- `POST /api/auth/signup` - User registration
+- `GET /api/search?q=query` - Search functionality
+- `POST /api/summary/webpage` - AI summary generation
+
+## Development
+
+### Build Commands
+```bash
+# Debug build
+./gradlew assembleDebug
+
+# Release build
+./gradlew assembleRelease
+
+# Clean build
+./gradlew clean assembleDebug
+
+# Run tests
+./gradlew test
+```
+
+### Common Issues
+| Issue | Solution |
+|-------|----------|
+| Gradle sync fails | `File → Invalidate Caches and Restart` |
+| SDK not found | Create `local.properties` with SDK path |
+| Build errors | `./gradlew clean assembleDebug` |
+
+## Architecture
+
+### MVVM Pattern
+- **Model**: Data classes and repository pattern
+- **View**: Jetpack Compose UI components  
+- **ViewModel**: Business logic and state management
+
+### Key Components
+- **Authentication**: Secure token-based auth with DataStore
+- **Search**: Real-time search with AI summaries
+- **UI/UX**: Material Design 3 with responsive layouts
+- **Navigation**: Navigation Compose for screen flow
 
 ## Contributing
 
 1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Submit a pull request
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
 ## License
 
-
-=======
-## 📚 **Documentation**
-
-| File | Description |
-|------|-------------|
-| `START_HERE.md` | Quick start guide |
-| `PROJECT_COMPLETE.md` | Full completion report |
-| `FEATURES.md` | Complete feature list (115+) |
-| `DEPLOYMENT.md` | Production deployment guide |
-| `HEALTH_CHECK.md` | Technical health report |
+MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
 
-## 🎊 **Project Status**
-
-### ✅ **100% Complete**
-- **Modern UI/UX** - ChatGPT + Perplexity inspired
-- **AI Integration** - Smart search and summaries
-- **Responsive Design** - Works on all devices
-- **Production Ready** - Deployment configs included
-- **Fully Tested** - All features working
-
-### 🏆 **Achievements**
-- **115+ Features** implemented
-- **Zero critical issues**
-- **Professional quality** codebase
-- **Complete documentation**
-- **Ready for production**
-
----
-
-## 🤝 **Contributing**
-
-This project is complete and ready for use. You can:
-- **Use as-is** for your AI search needs
-- **Customize** the UI and features
-- **Deploy** to production
-- **Extend** with real AI APIs
-- **Scale** for enterprise use
-
----
-
-## 📄 **License**
-
-MIT License - feel free to use for personal or commercial projects.
-
----
-
-## 🎉 **Ready to Use!**
-
-Your babyLLM AI search assistant is **complete and running**!
-
-**🚀 Start exploring: http://localhost:3000**
-
-*Built with ❤️ by sajadtlpr*
+**Built with ❤️ using Kotlin and Jetpack Compose**
 

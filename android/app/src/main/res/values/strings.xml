@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">babyLLM</string>
+    <string name="search_hint">Ask me anything...</string>
+    <string name="search_button">Search</string>
+    <string name="login">Log In</string>
+    <string name="signup">Sign Up</string>
+    <string name="logout">Sign Out</string>
+    <string name="settings">Settings</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="searching">Searching...</string>
+    <string name="no_results">No results found</string>
+    <string name="try_again">Try Again</string>
+    <string name="generate_summary">Generate AI Summary</string>
+    <string name="ai_summary">AI Summary:</string>
+    <string name="view_page">View Page</string>
+    <string name="chat_with_ai">Chat with AI</string>
+    <string name="enhanced_search">Enhanced search powered by AI</string>
+</resources>

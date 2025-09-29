@@ -1,0 +1,18 @@
+# Location of the Android SDK. This is only used by Gradle.
+# For customization when using a Version Control System, please read the
+# header note.
+sdk.dir=C\:\\Users\\YourUsername\\AppData\\Local\\Android\\Sdk
+
+# Uncomment the following line if you want to use a specific NDK version
+# ndk.dir=C\:\\Users\\YourUsername\\AppData\\Local\\Android\\Sdk\\ndk\\21.4.7075529
+
+# Instructions:
+# 1. Copy this file to 'local.properties' (remove .template extension)
+# 2. Update the sdk.dir path to match your Android SDK installation
+# 3. On Windows, use double backslashes (\\) in paths
+# 4. On Mac/Linux, use forward slashes (/) in paths
+#
+# Common SDK locations:
+# Windows: C:\Users\YourUsername\AppData\Local\Android\Sdk
+# Mac: /Users/YourUsername/Library/Android/sdk  
+# Linux: /home/YourUsername/Android/Sdk
