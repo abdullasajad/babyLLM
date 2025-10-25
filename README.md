@@ -10,39 +10,71 @@ A native Android application for AI-powered search with intelligent summaries.
 - **🎨 Material Design 3** - Modern, beautiful Android UI
 - **🌙 Dark/Light Themes** - Automatic theme switching
 - **📱 Responsive Design** - Works on all Android devices
+- **🔄 Auto-Retry** - Automatic retry logic for failed requests
+- **🛡️ Secure** - Network security configuration and encrypted storage
 
 ## Tech Stack
 
 - **Language**: Kotlin
 - **UI**: Jetpack Compose + Material Design 3
 - **Architecture**: MVVM + Repository Pattern
-- **Networking**: Retrofit + OkHttp
-- **Storage**: DataStore Preferences
+- **Networking**: Retrofit + OkHttp with retry interceptors
+- **Storage**: DataStore Preferences (encrypted)
 - **Navigation**: Navigation Compose
 
 ## Quick Start
 
 ### Prerequisites
-- Android Studio Arctic Fox+
-- JDK 8+
-- Android SDK API 24+
+- **Android Studio**: Arctic Fox or newer (recommended: latest stable)
+- **JDK**: 8 or higher
+- **Android SDK**: API 24+ (Android 7.0+)
+- **Gradle**: 8.2+ (included in project)
 
-### Setup
+### Automated Setup (Windows)
+
 ```bash
 # 1. Clone the repository
 git clone https://github.com/abdullasajad/babyLLM.git
 cd babyLLM
 
-# 2. Open Android Studio
+# 2. Run the setup script
+setup-android.bat
+
+# This will:
+# - Detect your Android SDK
+# - Create local.properties
+# - Configure the project
+```
+
+### Manual Setup
+
+```bash
+# 1. Clone the repository
+git clone https://github.com/abdullasajad/babyLLM.git
+cd babyLLM
+
+# 2. Create local.properties in android/ folder
+# Add this line (replace with your SDK path):
+sdk.dir=C:\\Users\\YourUsername\\AppData\\Local\\Android\\Sdk
+
+# 3. Open Android Studio
 # File → Open → Select 'android' folder
 
-# 3. Wait for Gradle sync → Click Run
+# 4. Wait for Gradle sync → Click Run
 ```
 
 ### Build APK
+
 ```bash
+# Navigate to android directory
 cd android
+
+# Windows
+gradlew.bat assembleDebug
+
+# Mac/Linux
 ./gradlew assembleDebug
+
 # Output: android/app/build/outputs/apk/debug/app-debug.apk
 ```
 
@@ -107,11 +139,36 @@ buildTypes {
 ```
 
 ### Common Issues
+
 | Issue | Solution |
 |-------|----------|
-| Gradle sync fails | `File → Invalidate Caches and Restart` |
-| SDK not found | Create `local.properties` with SDK path |
-| Build errors | `./gradlew clean assembleDebug` |
+| **Gradle sync fails** | `File → Invalidate Caches and Restart` in Android Studio |
+| **SDK not found** | Run `setup-android.bat` or manually create `local.properties` |
+| **Build errors** | Run `./gradlew clean assembleDebug` |
+| **Network errors** | Check API_BASE_URL in `app/build.gradle` |
+| **App crashes on start** | Ensure minimum SDK 24+ device/emulator |
+| **Cannot connect to server** | Use `10.0.2.2` for emulator, actual IP for physical device |
+
+### Troubleshooting Network Issues
+
+**For Android Emulator:**
+- Backend URL should be `http://10.0.2.2:PORT` (not localhost)
+- Example: `http://10.0.2.2:5000/api`
+
+**For Physical Device:**
+- Use your computer's local IP address
+- Example: `http://192.168.1.100:5000/api`
+- Ensure device and computer are on same network
+
+**Update API URL:**
+Edit `android/app/build.gradle`:
+```gradle
+buildTypes {
+    debug {
+        buildConfigField "String", "API_BASE_URL", "\"http://10.0.2.2:5000/api\""
+    }
+}
+```
 
 ## Architecture
 
